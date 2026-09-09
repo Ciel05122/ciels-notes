@@ -1,0 +1,43 @@
+[
+  {
+    "id": "sample-note-1",
+    "user_id": "fixture-user",
+    "text": "今天主要练了胸部和腹部。开始前有些拖延，但完成后状态比预想中好。",
+    "created_at": 1788100200000,
+    "updated_at": 1788100200000,
+    "type": "personal",
+    "is_goal": true,
+    "goal_done": true,
+    "pinned": false,
+    "tags": ["健身", "行动"],
+    "location": "家里",
+    "images": [{ "url": "https://example.invalid/private-image.jpg" }],
+    "files": [{ "name": "private.docx" }],
+    "comments": [
+      {
+        "id": "sample-comment-1",
+        "text": "真正困难的是开始，而不是训练本身。",
+        "createdAt": 1788102000000
+      }
+    ],
+    "timer": {
+      "task": "胸部训练",
+      "seconds": 2700
+    }
+  },
+  {
+    "id": "sample-note-2",
+    "user_id": "fixture-user",
+    "text": "和朋友讨论一件事时，我很快把对方的沉默理解成了反对，后来发现他只是在组织语言。",
+    "created_at": 1788105600000,
+    "updated_at": 1788107400000,
+    "type": "personal",
+    "is_goal": false,
+    "goal_done": false,
+    "pinned": true,
+    "tags": ["沟通", "反思"],
+    "location": null,
+    "comments": [],
+    "timer": null
+  }
+]
