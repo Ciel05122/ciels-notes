@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 import { fetchReview, fetchReviewList, deleteReview, type Review, type ReviewMeta } from '../cloudReviews';
 import { dateLabel } from '../date';
 import { saveReviewsSeenAt } from '../reviewsSeen';
+import { useStore } from '../store';
 
 // 回顾报告由电脑上的分析任务生成后写入云端，网页只负责读和删。
 // 正文是 Markdown，渲染前一律过一遍 DOMPurify——报告里引用了自己的记录原文，
@@ -88,6 +89,7 @@ export function ReviewDetail() {
   const [review, setReview] = useState<Review | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { readOnly } = useStore();
 
   useEffect(() => {
     let alive = true;
@@ -124,7 +126,7 @@ export function ReviewDetail() {
           </svg>
         </button>
         <span className="eyebrow">{review ? periodLabel(review) : '回顾'}</span>
-        {review ? (
+        {review && !readOnly ? (
           <button type="button" className="account-btn" aria-label="删除这份回顾" onClick={() => setConfirmDelete(true)}>
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <path d="M5 7h14" /><path d="M9 7V5h6v2" /><path d="M7 7l1 13h8l1-13" />

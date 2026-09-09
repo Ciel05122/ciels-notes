@@ -10,6 +10,29 @@
 
 ---
 
+## 在线体验
+
+**演示地址**：<!-- TODO: 填 Netlify 地址 -->
+
+```
+演示账号：demo@example.com
+密码：    demo1234
+```
+
+这个账号是只读的，数据全部为虚构示例，可以随意点。
+只读不是靠前端隐藏按钮实现的——数据库层的 RLS 策略直接拒绝了这个账号的所有写操作
+（见 `scripts/demo/gen-demo-sql.mjs`），前端同步隐藏写入入口只是为了不让访客点了才发现报错。
+
+<p align="center">
+  <img src="docs/screenshots/01-timeline.png" width="24%" alt="时间轴" />
+  <img src="docs/screenshots/02-tags.png" width="24%" alt="标签" />
+  <img src="docs/screenshots/03-search.png" width="24%" alt="搜索" />
+  <img src="docs/screenshots/04-review.png" width="24%" alt="回顾报告" />
+</p>
+<p align="center"><sub>时间轴 · 标签 · 搜索 · AI 回顾报告</sub></p>
+
+---
+
 ## 为什么做这个
 
 市面上的笔记应用要么太重（打开先选分类、选模板），要么留不住东西（聊天记录式的流水账）。

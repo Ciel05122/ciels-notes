@@ -23,7 +23,7 @@ interface Props {
 
 export function NoteCard({ note, timeMode = 'time', keyword, variant = 'default', onOpenDetail }: Props) {
   const navigate = useNavigate();
-  const { updateNote, deleteNote } = useStore();
+  const { updateNote, deleteNote, readOnly } = useStore();
   const isTimeline = variant === 'timeline';
   const textRef = useRef<HTMLSpanElement>(null);
   const [overflow, setOverflow] = useState(false);
@@ -92,7 +92,9 @@ export function NoteCard({ note, timeMode = 'time', keyword, variant = 'default'
             <time className="note-time">{timeText}</time>
           </>
         )}
-        <button className="more-actions" type="button" aria-label="更多操作" onClick={() => setSheet(true)}>⋯</button>
+        {!readOnly && (
+          <button className="more-actions" type="button" aria-label="更多操作" onClick={() => setSheet(true)}>⋯</button>
+        )}
       </header>
 
       {note.text && (
@@ -138,7 +140,9 @@ export function NoteCard({ note, timeMode = 'time', keyword, variant = 'default'
             <div key={c.id} className="comment">
               <span className="comment-text">{c.text}</span>
               <span className="comment-time">{dateLabel(c.createdAt)}</span>
-              <button type="button" className="comment-del" onClick={() => deleteComment(c.id)} aria-label="删除回复">×</button>
+              {!readOnly && (
+                <button type="button" className="comment-del" onClick={() => deleteComment(c.id)} aria-label="删除回复">×</button>
+              )}
             </div>
           ))}
         </div>
@@ -148,13 +152,15 @@ export function NoteCard({ note, timeMode = 'time', keyword, variant = 'default'
           <button type="button" className="add-comment-btn" onClick={() => openDetail()}>
             {comments.length > 0 ? `回复 ${comments.length}` : '查看详情'}
           </button>
-          <button type="button" className="add-comment-btn" onClick={() => openDetail(true)}>
-            ＋ 回复
-          </button>
+          {!readOnly && (
+            <button type="button" className="add-comment-btn" onClick={() => openDetail(true)}>
+              ＋ 回复
+            </button>
+          )}
         </div>
-      ) : (
+      ) : !readOnly ? (
         <button type="button" className="add-comment-btn" onClick={() => openDetail(true)}>＋ 回复</button>
-      )}
+      ) : null}
 
       {viewer !== null && (
         <Lightbox images={note.images} index={viewer} onClose={() => setViewer(null)} />

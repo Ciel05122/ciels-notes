@@ -40,7 +40,7 @@ export function NoteDetail() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { notes, syncing, updateNote, deleteNote } = useStore();
+  const { notes, syncing, updateNote, deleteNote, readOnly } = useStore();
   const note = notes.find((item) => item.id === id);
   const state = location.state as DetailLocationState | null;
   const [viewer, setViewer] = useState<number | null>(null);
@@ -112,7 +112,7 @@ export function NoteDetail() {
 
   return (
     <div className="page note-detail-page">
-      <DetailHeader onBack={goBack} onMore={() => setSheet(true)} />
+      <DetailHeader onBack={goBack} onMore={readOnly ? undefined : () => setSheet(true)} />
 
       <main id="main-content">
         <article className="note-detail-article">
@@ -181,6 +181,7 @@ export function NoteDetail() {
         </article>
       </main>
 
+      {!readOnly && (
       <form className="detail-reply-composer" onSubmit={addReply}>
         <label className="sr-only" htmlFor="detail-reply-input">写下回复</label>
         <textarea
@@ -194,6 +195,7 @@ export function NoteDetail() {
         />
         <button type="submit" disabled={!replyText.trim()}>发送</button>
       </form>
+      )}
 
       {viewer !== null && (
         <Lightbox images={note.images} index={viewer} onClose={() => setViewer(null)} />

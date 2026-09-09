@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { StoreProvider, useStore } from './store';
 import { TabBar } from './components/TabBar';
 import { Timeline } from './pages/Timeline';
@@ -19,7 +19,7 @@ import './App.css';
 
 function Shell() {
   const location = useLocation();
-  const { authReady, user } = useStore();
+  const { authReady, user, readOnly } = useStore();
 
   // 还没确认登录状态：先留白，避免登录页/主页闪一下
   if (!authReady) return <div className="app" />;
@@ -39,12 +39,13 @@ function Shell() {
     <div className="app">
       <Routes>
         <Route path="/" element={<Timeline />} />
-        <Route path="/write" element={<Write />} />
-        <Route path="/edit/:id" element={<Write />} />
+        {/* 只读演示账号进不了写入页，手敲 URL 也会被送回首页 */}
+        <Route path="/write" element={readOnly ? <Navigate to="/" replace /> : <Write />} />
+        <Route path="/edit/:id" element={readOnly ? <Navigate to="/" replace /> : <Write />} />
         <Route path="/note/:id" element={<NoteDetail />} />
         <Route path="/search" element={<Search />} />
         <Route path="/calendar" element={<Calendar />} />
-        <Route path="/timer" element={<Timer />} />
+        <Route path="/timer" element={readOnly ? <Navigate to="/" replace /> : <Timer />} />
         <Route path="/tags" element={<Tags />} />
         <Route path="/goals" element={<Goals />} />
         <Route path="/pins" element={<Pins />} />

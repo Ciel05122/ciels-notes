@@ -14,6 +14,8 @@ interface Store {
   notes: Note[];
   tags: TagStat[];
   user: User | null;
+  /** 演示账号：数据库层已锁成只读，前端同步隐藏写入入口，避免访客点了才发现报错 */
+  readOnly: boolean;
   authReady: boolean;
   syncing: boolean;
   addNote: (note: Note) => void;
@@ -25,6 +27,7 @@ interface Store {
 }
 
 const Ctx = createContext<Store | null>(null);
+const DEMO_USER_ID = import.meta.env.VITE_DEMO_USER_ID ?? '';
 const isSeed = (n: Note) => n.id.startsWith('seed-');
 
 // 合并本地与云端：按 id 去重，冲突取 updatedAt 更新的一方
@@ -41,6 +44,7 @@ function merge(local: Note[], cloud: Note[]): Note[] {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const readOnly = Boolean(DEMO_USER_ID && user?.id === DEMO_USER_ID);
   const [authReady, setAuthReady] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const userRef = useRef<User | null>(null);
@@ -148,8 +152,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const tags = useMemo(() => tagStats(notes), [notes]);
 
   const value = useMemo(
-    () => ({ notes, tags, user, authReady, syncing, addNote, updateNote, deleteNote, signIn, signUp, signOut }),
-    [notes, tags, user, authReady, syncing, addNote, updateNote, deleteNote, signIn, signUp, signOut],
+    () => ({ notes, tags, user, readOnly, authReady, syncing, addNote, updateNote, deleteNote, signIn, signUp, signOut }),
+    [notes, tags, user, readOnly, authReady, syncing, addNote, updateNote, deleteNote, signIn, signUp, signOut],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

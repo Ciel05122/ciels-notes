@@ -52,7 +52,7 @@ function readTimelineView(): TimelineViewState | null {
 }
 
 export function Timeline() {
-  const { notes, syncing, user, signOut } = useStore();
+  const { notes, syncing, user, readOnly, signOut } = useStore();
   const navigate = useNavigate();
   const [initialView] = useState<TimelineViewState | null>(() => readTimelineView());
   const [filter, setFilter] = useState<Filter>(initialView?.filter ?? 'all');
@@ -172,6 +172,7 @@ export function Timeline() {
             </svg>
             {reviewUnread && <span className="unread-dot" aria-hidden="true" />}
           </button>
+          {!readOnly && (
           <button className="account-btn" type="button" aria-label="计时" onClick={() => navigate('/timer')}>
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <circle cx="12" cy="13.5" r="7.5" />
@@ -180,6 +181,7 @@ export function Timeline() {
               <line x1="12" y1="2.5" x2="12" y2="5" />
             </svg>
           </button>
+          )}
           <button className="account-btn" type="button" aria-label="日历总览" onClick={() => navigate('/calendar')}>
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
               <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
@@ -205,6 +207,12 @@ export function Timeline() {
       </button>
 
       {/* 输入框：点一下进全屏写字页 */}
+      {readOnly ? (
+        <div className="demo-banner">
+          <strong>只读演示</strong>
+          <span>数据为虚构示例，可以随意浏览；写入功能在数据库层已关闭。</span>
+        </div>
+      ) : (
       <button className="composer-trigger" type="button" onClick={() => navigate('/write')}>
         <span className="composer-placeholder">此刻在想什么…</span>
         <div className="composer-foot">
@@ -214,6 +222,7 @@ export function Timeline() {
           <span className="composer-hint">无需标题 · 无需分类</span>
         </div>
       </button>
+      )}
 
       {/* 筛选条 */}
       <div className="filter-row">
