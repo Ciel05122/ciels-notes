@@ -12,16 +12,27 @@
 
 ## 在线体验
 
-**演示地址**：<!-- TODO: 填 Netlify 地址 -->
+**https://spectacular-sherbet-321cd9.netlify.app**
 
 ```
-演示账号：demo@example.com
+演示账号：demo@ciels-notes.com
 密码：    demo1234
 ```
 
 这个账号是只读的，数据全部为虚构示例，可以随意点。
-只读不是靠前端隐藏按钮实现的——数据库层的 RLS 策略直接拒绝了这个账号的所有写操作
-（见 `scripts/demo/gen-demo-sql.mjs`），前端同步隐藏写入入口只是为了不让访客点了才发现报错。
+
+只读不是靠前端隐藏按钮实现的——数据库层的 RLS 策略直接拒绝了这个账号的所有写操作，
+前端同步隐藏写入入口只是为了不让访客点了才发现报错。用演示账号的身份实测：
+
+| | 结果 |
+|---|---|
+| 读自己的 14 条演示记录 | 通过 |
+| 读作者账号的真实记录 | 一条都读不到 |
+| 插入 | 被 RLS 拒绝 |
+| 删除 | 被 RLS 拒绝 |
+
+生成演示数据与只读策略：`node scripts/demo/gen-demo-sql.mjs <演示账号 UID>`，
+输出的 SQL 贴进 Supabase SQL Editor 执行即可。
 
 <p align="center">
   <img src="docs/screenshots/01-timeline.png" width="24%" alt="时间轴" />
