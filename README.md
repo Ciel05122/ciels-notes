@@ -50,7 +50,8 @@
 我想要的是：**入口永远只有一个，点进去就能写**；但写下去的东西能被搜到、能按标签聚合、
 能在几个月后被翻出来对照。
 
-所以整个产品只有三个底部标签：首页时间轴、标签、搜索。目标、置顶、日历、计时器
+所以底部只有四个标签：首页时间轴、标签、搜索，以及一个按标签自动聚合的「备考」专栏
+（任何标签里含「备考」的记录都会出现在这里，不需要单独的写入入口）。目标、置顶、日历、计时器
 这些都藏在二级入口里——重功能存在，但不占用第一屏的注意力。
 
 ## 功能
@@ -176,7 +177,7 @@ npm run analysis:test
 
 ```
 src/
-  pages/        Timeline / Write / Search / NoteDetail / Reviews / Tags / Calendar / Goals / Pins / Timer / Login
+  pages/        Timeline / Write / Search / NoteDetail / Reviews / Prep / Tags / Calendar / Goals / Pins / Timer / Login
   components/   NoteCard / ImageGrid+Lightbox / LocationPicker / TabBar / Attachment / Badge
   store.tsx     全局状态：登录态、本地优先读写、云端合并
   cloudNotes.ts 记录的云端读写与行映射（分页读全）

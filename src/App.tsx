@@ -8,6 +8,7 @@ import { Search } from './pages/Search';
 import { Calendar } from './pages/Calendar';
 import { Goals } from './pages/Goals';
 import { Pins } from './pages/Pins';
+import { Prep } from './pages/Prep';
 import { Login } from './pages/Login';
 import { Timer } from './pages/Timer';
 import { Tags } from './pages/Tags';
@@ -49,6 +50,7 @@ function Shell() {
         <Route path="/tags" element={<Tags />} />
         <Route path="/goals" element={<Goals />} />
         <Route path="/pins" element={<Pins />} />
+        <Route path="/prep" element={<Prep />} />
         <Route path="/reviews" element={<Suspense fallback={<div className="page" />}><Reviews /></Suspense>} />
         <Route path="/reviews/:id" element={<Suspense fallback={<div className="page" />}><ReviewDetail /></Suspense>} />
       </Routes>

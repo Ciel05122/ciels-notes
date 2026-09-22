@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store';
 import {
   draftToNote, emptyDraft, noteToDraft,
@@ -32,9 +32,14 @@ export function Write() {
   );
   const editing = !!editId;
 
-  const [draft, setDraft] = useState<Draft>(() =>
-    existing ? noteToDraft(existing) : loadDraft() ?? emptyDraft(),
-  );
+  // 从备考页「＋ 记一条」进来会带 presetTags，并进草稿里，省得每次手打 #备考
+  const presetTags = (useLocation().state as { presetTags?: string[] } | null)?.presetTags;
+  const [draft, setDraft] = useState<Draft>(() => {
+    if (existing) return noteToDraft(existing);
+    const base = loadDraft() ?? emptyDraft();
+    const missing = (presetTags ?? []).filter((t) => !base.tags.includes(t));
+    return missing.length ? { ...base, tags: [...base.tags, ...missing] } : base;
+  });
   // 这条记录的「时间」（可改，用于补录过往）。新建默认现在。
   const [when, setWhen] = useState<number>(() => existing?.createdAt ?? Date.now());
   const [tagInput, setTagInput] = useState('');
