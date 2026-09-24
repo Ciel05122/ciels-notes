@@ -1,0 +1,13 @@
+{
+  // Cloudflare Workers 静态资源部署配置。
+  // 这是一个「只有静态资源、没有服务端代码」的 Worker：构建产物直接由 Cloudflare 边缘分发。
+  "name": "ciels-notes",
+  "compatibility_date": "2026-09-25",
+  "assets": {
+    "directory": "./dist",
+    // 单页应用：任何未命中静态文件的路径都回退到 index.html，
+    // 否则直接打开 /prep、/search 这类前端路由会 404。
+    // 作用等价于 public/_redirects 里的 `/* /index.html 200`，两者都保留做双保险。
+    "not_found_handling": "single-page-application"
+  }
+}
