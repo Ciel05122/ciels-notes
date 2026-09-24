@@ -7,7 +7,10 @@
     "directory": "./dist",
     // 单页应用：任何未命中静态文件的路径都回退到 index.html，
     // 否则直接打开 /prep、/search 这类前端路由会 404。
-    // 作用等价于 public/_redirects 里的 `/* /index.html 200`，两者都保留做双保险。
+    //
+    // 注意：这里不能再放 Netlify 式的 public/_redirects（`/* /index.html 200`）。
+    // Workers 的静态资源服务本身会规范化 .html 后缀和 /index，那条规则会被判定为
+    // 无限重定向循环（错误码 100324），整个部署会被拒绝。SPA 回退只用这一个配置。
     "not_found_handling": "single-page-application"
   }
 }
