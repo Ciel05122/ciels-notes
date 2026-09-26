@@ -32,25 +32,28 @@ export function saveNotes(notes: Note[]): void {
 }
 
 // ——— 草稿（写入页自动保存）———
-export function loadDraft(): Draft | null {
+// 记题页用单独的草稿槽：拍到一半的题不会混进普通草稿，也不会把普通草稿冲掉。
+export const PROBLEM_DRAFT_KEY = 'kb.draft.problem.v1';
+
+export function loadDraft(key = DRAFT_KEY): Draft | null {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as Draft) : null;
   } catch {
     return null;
   }
 }
 
-export function saveDraft(draft: Draft): void {
+export function saveDraft(draft: Draft, key = DRAFT_KEY): void {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    localStorage.setItem(key, JSON.stringify(draft));
   } catch (err) {
     console.error('保存草稿失败：', err);
   }
 }
 
-export function clearDraft(): void {
-  localStorage.removeItem(DRAFT_KEY);
+export function clearDraft(key = DRAFT_KEY): void {
+  localStorage.removeItem(key);
 }
 
 // ——— 标签统计：用于历史标签自动补全 + 搜索页「常用标签」———

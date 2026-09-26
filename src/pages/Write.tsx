@@ -5,7 +5,8 @@ import {
   draftToNote, emptyDraft, noteToDraft,
   type Draft, type MediaRef, type NoteType,
 } from '../types';
-import { loadDraft, saveDraft, clearDraft } from '../storage';
+import { loadDraft, saveDraft, clearDraft, PROBLEM_DRAFT_KEY } from '../storage';
+import { OPEN_TAG, PREP_TAG, subjectOptions } from '../prep';
 import {
   prepareImageForUpload,
   uploadPreparedImage,
@@ -32,11 +33,15 @@ export function Write() {
   );
   const editing = !!editId;
 
-  // 从备考页「＋ 记一条」进来会带 presetTags，并进草稿里，省得每次手打 #备考
-  const presetTags = (useLocation().state as { presetTags?: string[] } | null)?.presetTags;
+  // 从备考页进来会带 presetTags（「＋ 记一条」）或 mode: 'problem'（「记一道题」）
+  const routeState = useLocation().state as { presetTags?: string[]; mode?: 'problem' } | null;
+  // 记题模式：只留拍照、科目、一句话，其余面板收起来——目标是 20 秒内记完一道题
+  const problemMode = !editing && routeState?.mode === 'problem';
+  const draftKey = problemMode ? PROBLEM_DRAFT_KEY : undefined;
+  const presetTags = problemMode ? [PREP_TAG, OPEN_TAG] : routeState?.presetTags;
   const [draft, setDraft] = useState<Draft>(() => {
     if (existing) return noteToDraft(existing);
-    const base = loadDraft() ?? emptyDraft();
+    const base = loadDraft(draftKey) ?? emptyDraft();
     const missing = (presetTags ?? []).filter((t) => !base.tags.includes(t));
     return missing.length ? { ...base, tags: [...base.tags, ...missing] } : base;
   });
@@ -60,13 +65,13 @@ export function Write() {
   const nowMax = useRef(toDatetimeLocal(Date.now()));
 
   useEffect(() => {
-    textRef.current?.focus();
-  }, []);
+    if (!problemMode) textRef.current?.focus();
+  }, [problemMode]);
 
   // 自动保存草稿（只对「新建」生效，编辑不动新建草稿）
   useEffect(() => {
-    if (!editing) saveDraft(draft);
-  }, [draft, editing]);
+    if (!editing) saveDraft(draft, draftKey);
+  }, [draft, editing, draftKey]);
 
   const patch = (p: Partial<Draft>) => setDraft((d) => ({ ...d, ...p }));
 
@@ -200,6 +205,13 @@ export function Write() {
     patch({ tags: draft.tags.filter((x) => x !== t) });
   }
 
+  const subjects = useMemo(() => subjectOptions(notes), [notes]);
+  const pickedSubject = draft.tags.find((t) => subjects.includes(t));
+  function pickSubject(subject: string) {
+    const rest = draft.tags.filter((t) => !subjects.includes(t));
+    patch({ tags: pickedSubject === subject ? rest : [...rest, subject] });
+  }
+
   const suggestions = tagInput.trim()
     ? tags.filter((s) => s.tag.includes(tagInput.trim()) && !draft.tags.includes(s.tag)).slice(0, 6)
     : [];
@@ -232,7 +244,7 @@ export function Write() {
       const note = draftToNote(draft);
       note.createdAt = when;
       addNote(note);
-      clearDraft();
+      clearDraft(draftKey);
     }
     navigate(-1);
   }
@@ -250,17 +262,46 @@ export function Write() {
             ? `${failedImageCount} 张图片待重试`
             : busy
               ? '图片处理中…'
-              : editing ? '编辑记录' : '自动保存草稿'}
+              : editing ? '编辑记录' : problemMode ? '记一道题' : '自动保存草稿'}
         </span>
         <button className="primary-btn" type="button" disabled={!canSubmit} onClick={onSave}>
           {editing ? '保存' : '记录'}
         </button>
       </header>
 
+      {problemMode && (
+        <div className="problem-head">
+          <button
+            type="button"
+            className="problem-shot"
+            disabled={busy || draft.images.length >= MAX_IMAGES}
+            onClick={() => imgInput.current?.click()}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 8h3l2-2.5h6L17 8h3v11H4z" /><circle cx="12" cy="13" r="3.5" />
+            </svg>
+            {draft.images.length ? '再加一张' : '拍题目 / 选截图'}
+          </button>
+          <div className="problem-subjects" role="group" aria-label="科目">
+            {subjects.map((subject) => (
+              <button
+                key={subject}
+                type="button"
+                className={`pick sm ${pickedSubject === subject ? 'on' : ''}`}
+                aria-pressed={pickedSubject === subject}
+                onClick={() => pickSubject(subject)}
+              >
+                {subject}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <textarea
         ref={textRef}
         className="write-text"
-        placeholder="此刻在想什么…"
+        placeholder={problemMode ? '这道题卡在哪了？一句话就行' : '此刻在想什么…'}
         value={draft.text}
         onChange={(e) => patch({ text: e.target.value })}
       />
@@ -307,22 +348,26 @@ export function Write() {
           <input ref={fileInput} type="file" accept=".pdf,.doc,.docx" multiple hidden onChange={onPickFiles} />
         </div>
 
-        {/* 标记：目标 / 置顶 */}
+        {/* 标记：目标 / 置顶（记题时收起） */}
+        {!problemMode && (
         <div className="panel-row">
           <span className="panel-label">标记</span>
           <button type="button" className={`pick ${draft.isGoal ? 'on goal' : ''}`} onClick={() => patch({ isGoal: !draft.isGoal })}>目标</button>
           <button type="button" className={`pick ${draft.pinned ? 'on pin' : ''}`} onClick={() => patch({ pinned: !draft.pinned })}>置顶</button>
           <span className="panel-optional">可不选</span>
         </div>
+        )}
 
         {/* 标签：个人/专业彩色快捷标签 + 自由标签 */}
         <div className="panel-row tag-row">
           <span className="panel-label">标签</span>
           <div className="tag-field">
+            {!problemMode && (
             <div className="quick-tags">
               <button type="button" className={`pick sm ${draft.type === 'personal' ? 'on personal' : ''}`} onClick={() => toggleType('personal')}>个人</button>
               <button type="button" className={`pick sm ${draft.type === 'professional' ? 'on professional' : ''}`} onClick={() => toggleType('professional')}>专业</button>
             </div>
+            )}
             <div className="tag-chips">
               {draft.tags.map((t) => (
                 <span key={t} className="tag-chip">
@@ -358,6 +403,8 @@ export function Write() {
           </div>
         </div>
 
+        {/* 时间 / 地点：记题时收起，题目就记在当下 */}
+        {!problemMode && (<>
         {/* 时间：默认现在，可改成过去（补录以前的记录） */}
         <div className="panel-row">
           <span className="panel-label">时间</span>
@@ -383,6 +430,7 @@ export function Write() {
             📍 选地点
           </button>
         </div>
+        </>)}
       </div>
 
       {pickingLoc && (

@@ -2518,3 +2518,62 @@
   color: var(--accent-deep);
   letter-spacing: 0.02em;
 }
+
+/* ——— 备考：问题卡 ——— */
+
+/* 记题模式顶部：拍照按钮是第一动作，所以做成最大的点击区 */
+.problem-head {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0 14px;
+}
+.problem-shot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  border: 1px dashed rgba(20, 20, 19, 0.22);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+}
+.problem-shot:disabled { color: var(--faint); }
+.problem-subjects { display: flex; flex-wrap: wrap; gap: 8px; }
+.problem-subjects .pick.on { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* 备考页 */
+.prep-actions { display: flex; gap: 8px; }
+.prep-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 2px 8px;
+  border: 0;
+  background: transparent;
+  font-size: 12.5px;
+  color: var(--faint);
+  text-align: left;
+}
+.prep-section-title {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.prep-toggle { cursor: pointer; }
+.prep-problem { margin-bottom: 4px; }
+.resolve-btn {
+  display: block;
+  margin: -4px 4px 12px auto;
+  padding: 6px 12px;
+  border: 1px solid rgba(20, 20, 19, 0.12);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+}

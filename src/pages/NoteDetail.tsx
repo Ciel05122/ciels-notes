@@ -7,6 +7,7 @@ import { ImageGrid, Lightbox } from '../components/ImageGrid';
 import { useStore } from '../store';
 import { newComment } from '../types';
 import { formatDuration } from '../timer';
+import { problemStatus, withProblemStatus } from '../prep';
 
 const MONTHS = [
   'January',
@@ -212,6 +213,17 @@ export function NoteDetail() {
               <button type="button" onClick={() => { updateNote(note.id, { isGoal: !note.isGoal }); setSheet(false); }}>
                 {note.isGoal ? '取消目标' : '设为目标'}
               </button>
+              {problemStatus(note) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateNote(note.id, { tags: withProblemStatus(note.tags, problemStatus(note) === 'open' ? 'done' : 'open') });
+                    setSheet(false);
+                  }}
+                >
+                  {problemStatus(note) === 'open' ? '标记已解决' : '改回待解决'}
+                </button>
+              )}
               <button
                 type="button"
                 className="danger"

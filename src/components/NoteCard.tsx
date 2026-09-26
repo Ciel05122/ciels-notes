@@ -8,6 +8,7 @@ import { AttachmentChip } from './Attachment';
 import { highlight } from '../highlight';
 import { useStore } from '../store';
 import { formatDuration } from '../timer';
+import { problemStatus, withProblemStatus } from '../prep';
 
 interface Props {
   note: Note;
@@ -177,6 +178,17 @@ export function NoteCard({ note, timeMode = 'time', keyword, variant = 'default'
               <button type="button" onClick={() => { updateNote(note.id, { isGoal: !note.isGoal }); setSheet(false); }}>
                 {note.isGoal ? '取消目标' : '设为目标'}
               </button>
+              {problemStatus(note) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateNote(note.id, { tags: withProblemStatus(note.tags, problemStatus(note) === 'open' ? 'done' : 'open') });
+                    setSheet(false);
+                  }}
+                >
+                  {problemStatus(note) === 'open' ? '标记已解决' : '改回待解决'}
+                </button>
+              )}
               <button type="button" className="danger" onClick={() => { if (confirm('删除这条记录？')) deleteNote(note.id); setSheet(false); }}>
                 删除
               </button>
